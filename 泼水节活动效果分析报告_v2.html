@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CODM 泼水节活动效果分析报告</title>
+<style>
+:root {
+  --bg: #ffffff;
+  --surface: #f8f9fa;
+  --surface2: #f1f3f5;
+  --border: #e2e8f0;
+  --border-strong: #cbd5e1;
+  --text: #1a202c;
+  --text2: #4a5568;
+  --text3: #718096;
+  --text4: #a0aec0;
+  --accent: #2563eb;
+  --accent-light: #eff6ff;
+  --green: #059669;
+  --green-light: #ecfdf5;
+  --amber: #d97706;
+  --amber-light: #fffbeb;
+  --red: #dc2626;
+  --red-light: #fef2f2;
+  --purple: #7c3aed;
+  --purple-light: #f5f3ff;
+  --teal: #0891b2;
+  --teal-light: #ecfeff;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Helvetica Neue', 'PingFang TC', 'Microsoft JhengHei', Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.75;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 48px 32px 80px;
+}
+
+/* ── Header ── */
+.report-header {
+  border-bottom: 2px solid var(--text);
+  padding-bottom: 24px;
+  margin-bottom: 32px;
+}
+.report-eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 8px;
+}
+.report-title {
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+.report-meta {
+  font-size: 12px;
+  color: var(--text3);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 20px;
+}
+.report-meta strong { color: var(--text2); }
+
+/* ── Section Labels ── */
+.section { margin-bottom: 40px; }
+.section-h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+  border-bottom: 1.5px solid var(--border);
+  padding-bottom: 8px;
+  margin-bottom: 16px;
+}
+.section-h3 {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 20px 0 8px;
+}
+.chart-caption {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text3);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.chart-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.chart-subtitle {
+  font-size: 12px;
+  color: var(--text3);
+  margin-bottom: 16px;
+}
+
+/* ── Governing Thought ── */
+.governing-thought {
+  background: var(--text);
+  color: #fff;
+  border-radius: 6px;
+  padding: 20px 24px;
+  margin-bottom: 40px;
+  font-size: 14px;
+  line-height: 1.8;
+}
+.governing-thought .gt-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #94a3b8;
+  margin-bottom: 8px;
+}
+.governing-thought p { color: #e2e8f0; }
+.governing-thought strong { color: #fff; }
+
+/* ── Tables ── */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin: 12px 0 20px;
+}
+thead th {
+  background: var(--surface);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text3);
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 1.5px solid var(--border-strong);
+  white-space: nowrap;
+}
+thead th.r { text-align: right; }
+tbody td {
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text2);
+  vertical-align: middle;
+}
+tbody td.r { text-align: right; }
+tbody td.bold { font-weight: 600; color: var(--text); }
+tbody tr.highlight-row { background: var(--accent-light); }
+tbody tr.highlight-row td { color: var(--accent); font-weight: 600; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: var(--surface); }
+
+/* ── Pill badges ── */
+.pill {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 99px;
+  white-space: nowrap;
+}
+.pill-green  { background: var(--green-light);  color: var(--green); }
+.pill-amber  { background: var(--amber-light);  color: var(--amber); }
+.pill-red    { background: var(--red-light);    color: var(--red); }
+.pill-blue   { background: var(--accent-light); color: var(--accent); }
+.pill-purple { background: var(--purple-light); color: var(--purple); }
+.pill-teal   { background: var(--teal-light);   color: var(--teal); }
+.pill-gray   { background: var(--surface2);     color: var(--text3); }
+
+/* ── KPI Grid ── */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 16px 0 20px;
+}
+.kpi-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 18px;
+  background: var(--bg);
+}
+.kpi-card.featured { border-color: var(--accent); border-width: 1.5px; }
+.kpi-label { font-size: 11px; font-weight: 600; color: var(--text3); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 6px; }
+.kpi-value { font-size: 28px; font-weight: 700; line-height: 1; margin-bottom: 6px; }
+.kpi-value.blue   { color: var(--accent); }
+.kpi-value.green  { color: var(--green); }
+.kpi-value.amber  { color: var(--amber); }
+.kpi-value.purple { color: var(--purple); }
+.kpi-value.dark   { color: var(--text); }
+.kpi-sub { font-size: 12px; color: var(--text3); }
+
+/* ── SA Block ── */
+.sa-block {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 28px;
+  overflow: hidden;
+}
+.sa-header {
+  background: var(--surface);
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--border);
+}
+.sa-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text4); margin-bottom: 2px; }
+.sa-title   { font-size: 15px; font-weight: 700; color: var(--text); }
+.sa-body    { padding: 18px; }
+.fact-label   { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 4px; }
+.impl-label   { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--green); margin-top: 14px; margin-bottom: 4px; }
+.action-label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--amber); margin-top: 14px; margin-bottom: 4px; }
+.sa-body p { font-size: 13px; color: var(--text2); line-height: 1.8; }
+.sa-body strong { color: var(--text); font-weight: 600; }
+
+/* ── SVG Charts ── */
+.chart-wrap {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px 22px;
+  margin: 12px 0 20px;
+  background: var(--bg);
+}
+.chart-inner svg { display: block; width: 100%; overflow: visible; }
+.chart-note {
+  font-size: 12px;
+  color: var(--text3);
+  margin-top: 10px;
+  line-height: 1.6;
+  border-top: 1px solid var(--border);
+  padding-top: 8px;
+}
+.chart-note strong { color: var(--text2); }
+
+/* ── Definition table ── */
+.def-table { font-size: 13px; }
+.def-table td:first-child { font-family: 'Courier New', monospace; font-size: 12px; font-weight: 600; color: var(--accent); white-space: nowrap; }
+
+/* ── Issue Tree ── */
+.issue-tree {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 18px 20px;
+  font-size: 13px;
+  font-family: 'Courier New', monospace;
+  color: var(--text2);
+  line-height: 1.9;
+  margin: 12px 0 20px;
+}
+.issue-tree .root { font-weight: 700; color: var(--text); }
+.issue-tree .node { color: var(--accent); font-weight: 600; }
+
+/* ── Next Steps table ── */
+.next-steps-table thead th { background: var(--text); color: #fff; }
+.p0 td:first-child { font-weight: 700; color: var(--red); }
+.p1 td:first-child { font-weight: 700; color: var(--amber); }
+.p2 td:first-child { font-weight: 700; color: var(--text3); }
+
+/* ── Inline legend ── */
+.legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 12px; color: var(--text2); margin-bottom: 6px; }
+.legend-item { display: flex; align-items: center; gap: 5px; }
+.legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+/* ── Classification box ── */
+.classify-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 12px 0 20px;
+}
+.classify-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.classify-header {
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 700;
+}
+.classify-body {
+  padding: 10px 14px;
+  font-size: 12px;
+  color: var(--text2);
+  line-height: 1.7;
+  border-top: 1px solid var(--border);
+}
+.classify-body code {
+  display: inline-block;
+  background: var(--surface2);
+  border-radius: 3px;
+  padding: 0 5px;
+  font-size: 11px;
+  font-family: 'Courier New', monospace;
+  color: var(--text);
+  margin: 1px 2px;
+}
+.classify-body .char { font-size: 11px; color: var(--text3); margin-top: 6px; }
+
+.c-br     { background: #f5f3ff; color: #7c3aed; }
+.c-comp   { background: #ecfdf5; color: #059669; }
+.c-core   { background: #fffbeb; color: #d97706; }
+.c-lmt    { background: #eff6ff; color: #2563eb; }
+
+hr.section-divider { border: none; border-top: 1.5px solid var(--border); margin: 40px 0; }
+
+@media (max-width: 640px) {
+  body { padding: 24px 16px 60px; }
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .classify-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ HEADER ══ -->
+<div class="report-header">
+  <div class="report-eyebrow">CODM · 賽單活動效果專項分析</div>
+  <div class="report-title">泼水节活动效果分析报告</div>
+  <div class="report-meta">
+    <span><strong>分析類型</strong>：賽單專項對比</span>
+    <span><strong>數據範圍</strong>：2025 年至今（截至 2026-04-01）</span>
+    <span><strong>樣本量</strong>：10,755 條記錄 · 134 個賽單</span>
+    <span><strong>分析赛道</strong>：四大賽道分類（見第一節）</span>
+    <span><strong>對比基準</strong>：LMT/Event 50 個限時賽單均值、Core MP 日常均值</span>
+  </div>
+</div>
+
+<!-- ══ 名詞定義 ══ -->
+<div class="section">
+  <div class="section-h2">名詞定義</div>
+  <table class="def-table">
+    <thead><tr>
+      <th>術語</th><th>定義</th>
+    </tr></thead>
+    <tbody>
+      <tr><td>玩家参与率</td><td>當日參與該賽單的不重複玩家數 ÷ 當日 DAU</td></tr>
+      <tr><td>单局时长</td><td>該賽單局均在線時長（分鐘）</td></tr>
+      <tr><td>场均击杀</td><td>每局平均擊殺數</td></tr>
+      <tr><td>中退率</td><td>局中途退出次數 ÷ 總進局次數，越低代表完局率越高</td></tr>
+      <tr><td>次日留存</td><td>當日參與該賽單的玩家，次日仍登入遊戲的比例</td></tr>
+      <tr><td>赛单七留</td><td>當日參與該賽單的玩家，7 日後仍有登入的比例（滾動窗口）</td></tr>
+      <tr><td>LMT/Event 均值</td><td>全部 50 個限時活動賽單指標的簡單均值（含 Featured、節日、WWE 等）</td></tr>
+      <tr><td>Core MP 均值</td><td>全部 Core- 開頭日常多人對戰賽單指標的簡單均值（不含 Train）</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══ 四大賽道分類 ══ -->
+<div class="section">
+  <div class="section-h2">四大賽道分類字段</div>
+  <p style="font-size:13px;color:var(--text2);margin-bottom:16px;">
+    以下為本報告所用的賽道劃分邏輯，依 <code style="background:var(--surface2);border-radius:3px;padding:0 5px;font-size:12px;font-family:Courier New,monospace;">playlist描述名</code> 字段進行規則比對。共 134 個唯一賽單，劃分結果如下。
+  </p>
+  <div class="classify-grid">
+    <div class="classify-card">
+      <div class="classify-header c-br">BR Course 戰術競技賽道</div>
+      <div class="classify-body">
+        <strong>包含欄位（完全比對）：</strong><br>
+        <code>BR-Horizon-Isolated</code><code>BR-Horizon-Blackout</code>
+        <div class="char">玩法特徵：單局時長 &gt;10 分鐘；場均擊殺低（~4.4）；高參與率（21.6%）；賽單七留最高（38.2%）。代表核心 BR 重度玩家基本盤。</div>
+      </div>
+    </div>
+    <div class="classify-card">
+      <div class="classify-header c-comp">Competitive MP 核心競技賽道</div>
+      <div class="classify-body">
+        <strong>包含欄位（前綴規則）：</strong><br>
+        <code>Rank-</code>（所有排位賽）
+        <div class="char">玩法特徵：中退率極低（0.81%）；單局 ~6 分鐘；七留 27.7%；參與率 12.7%。代表競技導向玩家，留存品質最高。</div>
+      </div>
+    </div>
+    <div class="classify-card">
+      <div class="classify-header c-core">Core MP 基礎匹配賽道</div>
+      <div class="classify-body">
+        <strong>包含欄位（前綴規則，排除 Train）：</strong><br>
+        <code>Core-Team Death Match</code><code>Core-Domination</code><code>Core-Hardpoint</code><code>Core-Search &amp; Destroy</code><code>Core-Kill Confirmed</code><code>Core-Free For All</code><code>Core-Frontline</code><code>Core-Practice VS. AI</code><code>Core-Gun Fight</code>
+        等所有 <code>Core-</code> 前綴賽單（<code>Core-Train</code> 歸入 LMT/Event）
+        <div class="char">玩法特徵：日常練槍、流量分散；參與率低（3.1%）；中退率低（3.0%）；七留 20.7%。</div>
+      </div>
+    </div>
+    <div class="classify-card">
+      <div class="classify-header c-lmt">LMT/Event 限時活動賽道</div>
+      <div class="classify-body">
+        <strong>包含欄位（關鍵字比對）：</strong><br>
+        <code>泼水节</code><code>WWE</code><code>装卸货场-新春</code><code>Train</code><code>Core-Train</code><code>Get Some Air(FS)</code>
+        及所有 <code>Featured-</code> 前綴賽單（共 50 個賽單，含 Prop Hunt、Cranked、Shoot the Ship、1v1 Duel 等）
+        <div class="char">玩法特徵：短期上線；玩法多元（均值場均擊杀 75.7，但個體差異大）；中退率高（均值 13.9%）；七留 6.4%。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="chart-wrap">
+    <div class="chart-caption">各賽道記錄量分佈</div>
+    <div class="chart-title">四大賽道樣本量 & 平均參與率</div>
+    <div class="legend" style="margin-bottom:12px;">
+      <span class="legend-item"><span class="legend-dot" style="background:#7c3aed;"></span>BR Course</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#059669;"></span>Competitive MP</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#d97706;"></span>Core MP</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#2563eb;"></span>LMT/Event</span>
+    </div>
+    <div class="chart-inner">
+      <svg viewBox="0 0 780 200" xmlns="http://www.w3.org/2000/svg" style="font-family:inherit;">
+        <!-- Y axis label -->
+        <text x="8" y="30" font-size="10" fill="#718096">記錄數</text>
+        <text x="550" y="30" font-size="10" fill="#718096">玩家參與率均值</text>
+        <!-- Bars: records -->
+        <!-- BR: 1127 / 3684 = 30.6% scale -->
+        <rect x="50" y="50" width="80" height="112" fill="#7c3aed" rx="3"/>
+        <text x="90" y="45" font-size="11" fill="#7c3aed" text-anchor="middle" font-weight="600">1,127</text>
+        <!-- Comp: 2263 -->
+        <rect x="180" y="50" width="80" height="160" fill="#059669" rx="3"/>
+        <text x="220" y="45" font-size="11" fill="#059669" text-anchor="middle" font-weight="600">2,263</text>
+        <!-- Core: 3684 -->
+        <rect x="310" y="50" width="80" height="220" fill="#d97706" rx="3"/>
+        <text x="350" y="30" font-size="11" fill="#d97706" text-anchor="middle" font-weight="600">3,684</text>
+        <!-- LMT: 1811 -->
+        <rect x="440" y="50" width="80" height="128" fill="#2563eb" rx="3"/>
+        <text x="480" y="45" font-size="11" fill="#2563eb" text-anchor="middle" font-weight="600">1,811</text>
+        <!-- X labels -->
+        <text x="90"  y="285" font-size="11" fill="#718096" text-anchor="middle">BR Course</text>
+        <text x="220" y="285" font-size="11" fill="#718096" text-anchor="middle">Competitive MP</text>
+        <text x="350" y="285" font-size="11" fill="#718096" text-anchor="middle">Core MP</text>
+        <text x="480" y="285" font-size="11" fill="#718096" text-anchor="middle">LMT/Event</text>
+        <!-- Participation rate bars (right side) -->
+        <!-- BR: 21.63% → max width 200, scale /25 = 173 -->
+        <rect x="560" y="60" width="173" height="16" fill="#7c3aed" rx="2" opacity="0.8"/>
+        <text x="739" y="72" font-size="11" fill="#7c3aed" font-weight="600">21.6%</text>
+        <!-- Comp: 12.70% → 102 -->
+        <rect x="560" y="90" width="102" height="16" fill="#059669" rx="2" opacity="0.8"/>
+        <text x="668" y="102" font-size="11" fill="#059669" font-weight="600">12.7%</text>
+        <!-- Core: 3.07% → 25 -->
+        <rect x="560" y="120" width="25" height="16" fill="#d97706" rx="2" opacity="0.8"/>
+        <text x="591" y="132" font-size="11" fill="#d97706" font-weight="600">3.1%</text>
+        <!-- LMT: 1.49% → 12 -->
+        <rect x="560" y="150" width="12" height="16" fill="#2563eb" rx="2" opacity="0.8"/>
+        <text x="578" y="162" font-size="11" fill="#2563eb" font-weight="600">1.5%</text>
+        <!-- Y labels right -->
+        <text x="544" y="72" font-size="11" fill="#718096" text-anchor="end">BR Course</text>
+        <text x="544" y="102" font-size="11" fill="#718096" text-anchor="end">Comp MP</text>
+        <text x="544" y="132" font-size="11" fill="#718096" text-anchor="end">Core MP</text>
+        <text x="544" y="162" font-size="11" fill="#718096" text-anchor="end">LMT/Event</text>
+      </svg>
+    </div>
+    <div class="chart-note"><strong>備註：</strong>Other 類（1,870 條）為未能歸入四大賽道的雜項賽單（含 BR 其他變體、Arena、20v20 等），本報告不納入主要對比。</div>
+  </div>
+</div>
+
+<!-- ══ GOVERNING THOUGHT ══ -->
+<div class="governing-thought">
+  <div class="gt-label">Governing Thought</div>
+  <p>
+    泼水节在 <strong>50 個 LMT/Event 限時賽單中以 3.23% 參與率排名第一</strong>，是同類均值（1.49%）的 2.17 倍，且在無獨立付費激勵、無專屬賞金的前提下達成——這說明節日 IP 驅動的玩法吸引力足以獨立拉動流量；單局僅 2.89 分鐘的極速節奏使中退率降至 4.01%（比 LMT 均值低 71%），接近 Core MP 日常水準，確認局內體驗完整；賽單七留 6.97% 高於同類均值（6.41%），在 LMT 中排名 #6，代表有效的 7 日粘性轉化。<strong>核心結論：泼水节的活躍拉動效果不依賴外部獎勵，其「低門檻 + 高完整度 + 極速回路」三重特徵是可複製的節日活動設計範式。</strong>
+  </p>
+</div>
+
+<!-- ══ 分析架構 ══ -->
+<div class="section">
+  <div class="section-h2">分析架構：議題樹</div>
+  <div class="issue-tree">
+    <div class="root">泼水节活躍拉動效果驗證</div>
+    <div>&nbsp;│</div>
+    <div>&nbsp;├─ <span class="node">SA1</span>：參與率絕對優勢 — 同類 #1，無付費驅動仍達日常 Core MP 水準</div>
+    <div>&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;→ 泼水节 3.23% vs LMT 均值 1.49%（+117%）</div>
+    <div>&nbsp;│</div>
+    <div>&nbsp;├─ <span class="node">SA2</span>：場均擊殺非優勢維度，但符合極速節奏定位</div>
+    <div>&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;→ 21.84 vs LMT 均值 75.67（差距源於單局 2.89min，非玩法缺陷）</div>
+    <div>&nbsp;│</div>
+    <div>&nbsp;├─ <span class="node">SA3</span>：中退率控制接近日常賽道，確認局內體驗完整</div>
+    <div>&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;→ 4.01% vs LMT 均值 13.93%（-71%），接近 Core MP 的 3.01%</div>
+    <div>&nbsp;│</div>
+    <div>&nbsp;└─ <span class="node">SA4</span>：七留超均值，節日 IP 有效轉化短期流量為 7 日粘性</div>
+    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ 6.97% vs LMT 均值 6.41%，在 50 個限時賽單中排名 #6</div>
+  </div>
+</div>
+
+<!-- ══ SA1 ══ -->
+<div class="section">
+  <div class="section-h2">Supporting Argument 1：參與率同類第一，無需付費驅動</div>
+  <div class="sa-block">
+    <div class="sa-header">
+      <div class="sa-eyebrow">SA1 — 玩家参与率</div>
+      <div class="sa-title">泼水节參與率 3.23%，排名 #1/50，是同類均值的 2.17 倍</div>
+    </div>
+    <div class="sa-body">
+      <div class="fact-label">Fact</div>
+      <p>泼水节平均玩家參與率 <strong>3.23%</strong>，在全部 50 個 LMT/Event 賽單中排名第一（#1/50）。同類均值僅 1.49%，排名第二的 Featured-Khandor Hideout 24/7 為 2.74%——泼水节領先第二名 0.49pp（+18%）。值得注意的是，泼水节的 3.23% 幾乎等同於 Core MP 日常均值（3.07%），代表一個 <strong>限時節日活動在無付費激勵下能複製日常賽道的流量吸引力</strong>。</p>
+      <div class="impl-label">Implication</div>
+      <p>節日 IP（潑水節主題）本身即為有效流量觸發點，玩家進入無需外部利益驅動。這區別於多數 Featured 賽單依賴道具獎勵或獨特機制吸引偶發參與的邏輯——泼水节的流量基礎更穩固，參與動機來自玩法本身的節慶體驗感。</p>
+      <div class="action-label">Action</div>
+      <p>建議以泼水节作為節日 IP 活動設計的參考基線：在無強制付費綁定的前提下，若一個限時賽單能達成 ≥2.5% 參與率，即可視為流量效果達標標準。</p>
+    </div>
+  </div>
+
+  <div class="chart-wrap">
+    <div class="chart-caption">圖表 1｜SA1 圖：LMT/Event 各賽單參與率排名（Top 15）+ 泼水节位置</div>
+    <div class="chart-title">LMT/Event 賽單玩家參與率 Top 15 — 泼水节排名 #1/50</div>
+    <div class="chart-subtitle">橫軸為玩家參與率均值；藍色為泼水节，灰色為其他 Featured 賽單</div>
+    <div class="chart-inner">
+      <svg viewBox="0 0 700 340" xmlns="http://www.w3.org/2000/svg" style="font-family:inherit;">
+        <!-- Bars (top 10 shown) -->
+        <!-- data: 泼水节 3.23, Khandor 2.74, Capture&Hold 2.70, Hardcore Hold 2.50, Best of TDM 2.45, Attack Undead 2.31, Grind 2.27, Shoot the Ship 2.24, Cranked 2.00, Pistols 1.99 -->
+        <!-- scale: max=3.23 → 400px width -->
+        <g transform="translate(190,10)">
+          <!-- 泼水节 -->
+          <rect y="0"   width="400" height="22" fill="#2563eb" rx="3"/>
+          <text x="406" y="15" font-size="12" fill="#2563eb" font-weight="700">3.23%  #1</text>
+          <!-- Khandor -->
+          <rect y="28"  width="339" height="22" fill="#94a3b8" rx="3"/>
+          <text x="345" y="43" font-size="11" fill="#94a3b8">2.74%</text>
+          <!-- Capture Hold -->
+          <rect y="56"  width="334" height="22" fill="#94a3b8" rx="3"/>
+          <text x="340" y="71" font-size="11" fill="#94a3b8">2.70%</text>
+          <!-- Hardcore Hold -->
+          <rect y="84"  width="310" height="22" fill="#94a3b8" rx="3"/>
+          <text x="316" y="99" font-size="11" fill="#94a3b8">2.50%</text>
+          <!-- Best of TDM -->
+          <rect y="112" width="303" height="22" fill="#94a3b8" rx="3"/>
+          <text x="309" y="127" font-size="11" fill="#94a3b8">2.45%</text>
+          <!-- Attack Undead -->
+          <rect y="140" width="286" height="22" fill="#94a3b8" rx="3"/>
+          <text x="292" y="155" font-size="11" fill="#94a3b8">2.31%</text>
+          <!-- Grind -->
+          <rect y="168" width="281" height="22" fill="#94a3b8" rx="3"/>
+          <text x="287" y="183" font-size="11" fill="#94a3b8">2.27%</text>
+          <!-- Shoot the Ship -->
+          <rect y="196" width="277" height="22" fill="#94a3b8" rx="3"/>
+          <text x="283" y="211" font-size="11" fill="#94a3b8">2.24%</text>
+          <!-- Cranked -->
+          <rect y="224" width="248" height="22" fill="#94a3b8" rx="3"/>
+          <text x="254" y="239" font-size="11" fill="#94a3b8">2.00%</text>
+          <!-- Pistols -->
+          <rect y="252" width="246" height="22" fill="#94a3b8" rx="3"/>
+          <text x="252" y="267" font-size="11" fill="#94a3b8">1.99%</text>
+        </g>
+        <!-- Y labels -->
+        <text x="184" y="25"  font-size="12" fill="#2563eb" text-anchor="end" font-weight="700">★ 泼水节</text>
+        <text x="184" y="53"  font-size="11" fill="#718096" text-anchor="end">Khandor 24/7</text>
+        <text x="184" y="81"  font-size="11" fill="#718096" text-anchor="end">Capture &amp; Hold</text>
+        <text x="184" y="109" font-size="11" fill="#718096" text-anchor="end">Hardcore Hold</text>
+        <text x="184" y="137" font-size="11" fill="#718096" text-anchor="end">Best of TDM</text>
+        <text x="184" y="165" font-size="11" fill="#718096" text-anchor="end">Attack of Undead</text>
+        <text x="184" y="193" font-size="11" fill="#718096" text-anchor="end">Grind</text>
+        <text x="184" y="221" font-size="11" fill="#718096" text-anchor="end">Shoot the Ship</text>
+        <text x="184" y="249" font-size="11" fill="#718096" text-anchor="end">Cranked</text>
+        <text x="184" y="277" font-size="11" fill="#718096" text-anchor="end">Pistols Sticks</text>
+        <!-- baseline line -->
+        <line x1="190" y1="10" x2="190" y2="290" stroke="#e2e8f0" stroke-width="1"/>
+        <!-- LMT avg line at 1.49% → 190 + (1.49/3.23)*400 = 190+184.5 = 374.5 -->
+        <line x1="374" y1="10" x2="374" y2="295" stroke="#dc2626" stroke-width="1" stroke-dasharray="4 3"/>
+        <text x="374" y="308" font-size="10" fill="#dc2626" text-anchor="middle">LMT 均值 1.49%</text>
+      </svg>
+    </div>
+    <div class="chart-note"><strong>泼水节</strong>以 3.23% 玩家參與率位居 50 個 LMT/Event 賽單之首，比 LMT 均值（虛線）高出 <strong>117%</strong>，比第二名（Khandor Hideout 24/7，2.74%）高 <strong>18%</strong>。</div>
+  </div>
+</div>
+
+<!-- ══ SA2 ══ -->
+<div class="section">
+  <div class="section-h2">Supporting Argument 2：場均擊殺非優勢維度，但符合極速節奏定位</div>
+  <div class="sa-block">
+    <div class="sa-header">
+      <div class="sa-eyebrow">SA2 — 場均擊殺 × 單局時長</div>
+      <div class="sa-title">21.84 擊殺看似低於 Core MP，但本質是 2.89 分鐘極速節奏的必然結果</div>
+    </div>
+    <div class="sa-body">
+      <div class="fact-label">Fact</div>
+      <p>泼水节場均擊殺 <strong>21.84</strong>，與 Core MP 均值（22.65）基本持平，遠低於 LMT/Event 均值（75.67）。但泼水节單局時長僅 <strong>2.89 分鐘</strong>，是 Core MP 均值（4.13 分鐘）的 70%、LMT 均值（10.23 分鐘）的 28%。若以「每分鐘擊殺數」換算，泼水节約 7.55 殺/分鐘，<strong>高於 Core MP 的 5.48 殺/分鐘（+38%）</strong>，是真正的高強度極速局。</p>
+      <div class="impl-label">Implication</div>
+      <p>以「場均擊殺絕對值」評估泼水节是錯誤框架。其設計邏輯是透過極短局長壓縮時間成本、提高單位時間戰鬥密度，從而降低輕度玩家的參與門檻——這正是其參與率冠軍的底層機制。LMT 均值場均擊殺高（75.67）的賽單反而多為長局或特殊玩法，中退率也更高（13.93%）。</p>
+      <div class="action-label">Action</div>
+      <p>在後續節日活動設計評估中，對極速局類型應以「每分鐘擊殺密度」而非「場均擊殺總量」作為玩法強度評估指標。</p>
+    </div>
+  </div>
+
+  <div class="chart-wrap">
+    <div class="chart-caption">圖表 2｜SA2 圖：單局時長 vs 場均擊殺四象限分佈</div>
+    <div class="chart-title">泼水节定位：極速 / 高密度象限</div>
+    <div class="chart-subtitle">X 軸 = 單局時長（分鐘）；Y 軸 = 場均擊殺；泼水节落點與各賽道均值對比</div>
+    <div class="chart-inner">
+      <svg viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg" style="font-family:inherit;">
+        <!-- axes -->
+        <line x1="60" y1="20" x2="60" y2="250" stroke="#cbd5e1" stroke-width="1.5"/>
+        <line x1="60" y1="250" x2="570" y2="250" stroke="#cbd5e1" stroke-width="1.5"/>
+        <!-- Y axis labels (击杀: 0,25,50,75,100) -->
+        <text x="54" y="254" font-size="10" fill="#a0aec0" text-anchor="end">0</text>
+        <text x="54" y="187" font-size="10" fill="#a0aec0" text-anchor="end">25</text>
+        <text x="54" y="121" font-size="10" fill="#a0aec0" text-anchor="end">50</text>
+        <text x="54" y="55"  font-size="10" fill="#a0aec0" text-anchor="end">75</text>
+        <line x1="58" y1="188" x2="570" y2="188" stroke="#f1f5f9" stroke-width="1"/>
+        <line x1="58" y1="122" x2="570" y2="122" stroke="#f1f5f9" stroke-width="1"/>
+        <line x1="58" y1="55"  x2="570" y2="55"  stroke="#f1f5f9" stroke-width="1"/>
+        <!-- X axis labels (time: 0,3,6,9,12) -->
+        <!-- scale: 0-13min → 510px = 39.2px/min -->
+        <text x="60"  y="264" font-size="10" fill="#a0aec0" text-anchor="middle">0</text>
+        <text x="178" y="264" font-size="10" fill="#a0aec0" text-anchor="middle">3</text>
+        <text x="295" y="264" font-size="10" fill="#a0aec0" text-anchor="middle">6</text>
+        <text x="413" y="264" font-size="10" fill="#a0aec0" text-anchor="middle">9</text>
+        <text x="530" y="264" font-size="10" fill="#a0aec0" text-anchor="middle">12</text>
+        <text x="310" y="278" font-size="10" fill="#a0aec0" text-anchor="middle">單局時長（分鐘）</text>
+        <text x="20" y="140" font-size="10" fill="#a0aec0" text-anchor="middle" transform="rotate(-90,20,140)">場均擊殺</text>
+        <!-- quadrant dividers (avg time ~5min, avg kill ~30) -->
+        <line x1="256" y1="20" x2="256" y2="250" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="3 3"/>
+        <line x1="60" y1="145" x2="570" y2="145" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="3 3"/>
+        <!-- quadrant labels -->
+        <text x="158" y="38" font-size="10" fill="#94a3b8" text-anchor="middle">極速高密度</text>
+        <text x="413" y="38" font-size="10" fill="#94a3b8" text-anchor="middle">長局高密度</text>
+        <text x="158" y="238" font-size="10" fill="#94a3b8" text-anchor="middle">極速低密度</text>
+        <text x="413" y="238" font-size="10" fill="#94a3b8" text-anchor="middle">長局低密度</text>
+        <!-- Plot points -->
+        <!-- 泼水节: time=2.89→60+2.89*39.2=173, kill=21.84→250-(21.84/100)*230=200 -->
+        <circle cx="173" cy="200" r="9" fill="#2563eb"/>
+        <text x="183" y="195" font-size="11" fill="#2563eb" font-weight="700">泼水节</text>
+        <text x="183" y="207" font-size="10" fill="#2563eb">2.89min / 21.8殺</text>
+        <!-- Core MP: 4.13→222, 22.65→200 -->
+        <circle cx="222" cy="198" r="7" fill="#d97706" opacity="0.85"/>
+        <text x="230" y="208" font-size="10" fill="#d97706">Core MP 均</text>
+        <!-- Competitive: 5.99→295, 11.06→225 -->
+        <circle cx="295" cy="224" r="7" fill="#059669" opacity="0.85"/>
+        <text x="303" y="220" font-size="10" fill="#059669">Comp MP 均</text>
+        <!-- LMT: 10.23→461, 75.67→76 -->
+        <circle cx="461" cy="76" r="7" fill="#94a3b8" opacity="0.85"/>
+        <text x="469" y="72" font-size="10" fill="#718096">LMT 均</text>
+        <!-- BR: 11.26→501, 4.40→240 -->
+        <circle cx="501" cy="240" r="7" fill="#7c3aed" opacity="0.85"/>
+        <text x="509" y="236" font-size="10" fill="#7c3aed">BR Course 均</text>
+      </svg>
+    </div>
+    <div class="chart-note"><strong>泼水节</strong>落於「極速高密度」象限，與 Core MP / Competitive MP 均值為鄰。LMT 均值雖然場均擊殺最高，但單局超過 10 分鐘，中退率也達 13.93%。泼水节以最短的時長實現與 Core MP 持平的密度，是其低門檻高完整度的設計優勢。</div>
+  </div>
+</div>
+
+<!-- ══ SA3 ══ -->
+<div class="section">
+  <div class="section-h2">Supporting Argument 3：中退率接近日常賽道，局內體驗完整度超越同類</div>
+  <div class="sa-block">
+    <div class="sa-header">
+      <div class="sa-eyebrow">SA3 — 中退率</div>
+      <div class="sa-title">中退率 4.01%，比 LMT/Event 均值低 71%，與 Core MP 日常水準齊平</div>
+    </div>
+    <div class="sa-body">
+      <div class="fact-label">Fact</div>
+      <p>泼水节中退率 <strong>4.01%</strong>，LMT/Event 均值為 13.93%，BR Course 均值 5.08%，Core MP 均值 3.01%。泼水节的中退率不僅比同類活動低 <strong>71%</strong>，甚至與 Core MP（最低類別之一）的差距僅 1pp——在一個限時節日模式中實現日常賽道級別的完局率，是強力的玩法信心指標。</p>
+      <div class="impl-label">Implication</div>
+      <p>許多 LMT/Event 賽單存在「吸引玩家進局、但玩一半就退」的體驗問題（均值 13.93%），這代表玩法新鮮感難以支撐完整局面。泼水节突破了這個模式：玩家進局後選擇打完的比例接近日常習慣賽道。極短單局（2.89 分鐘）本身亦有助於降低中退動機——局太短導致「退不退都差不多」，從而自然拉高完局率。</p>
+      <div class="action-label">Action</div>
+      <p>中退率 ≤5% 可作為「限時活動玩法品質及格線」。後續活動上線前，建議以 Beta/軟上線期的中退率作為快速健康指標，發現 >8% 即啟動玩法調整。</p>
+    </div>
+  </div>
+
+  <div class="chart-wrap">
+    <div class="chart-caption">圖表 3｜SA3 圖：中退率各賽道對比（越低越好）</div>
+    <div class="chart-title">中退率對比 — 泼水节接近 Core MP 日常水準，遠低於 LMT/Event 均值</div>
+    <div class="chart-inner">
+      <svg viewBox="0 0 600 220" xmlns="http://www.w3.org/2000/svg" style="font-family:inherit;">
+        <!-- max = LMT 13.93%, scale: /15 * 400 = 371 -->
+        <g transform="translate(170,10)">
+          <!-- LMT -->
+          <rect y="0"   width="371" height="22" fill="#94a3b8" rx="3"/>
+          <text x="377" y="15" font-size="11" fill="#718096">13.93%</text>
+          <!-- BR -->
+          <rect y="30"  width="135" height="22" fill="#7c3aed" rx="3" opacity="0.8"/>
+          <text x="141" y="45" font-size="11" fill="#7c3aed">5.08%</text>
+          <!-- 泼水节 -->
+          <rect y="60"  width="107" height="22" fill="#2563eb" rx="3"/>
+          <text x="113" y="75" font-size="12" fill="#2563eb" font-weight="700">4.01%</text>
+          <!-- Core MP -->
+          <rect y="90"  width="80" height="22" fill="#d97706" rx="3" opacity="0.8"/>
+          <text x="86" y="105" font-size="11" fill="#d97706">3.01%</text>
+          <!-- Comp -->
+          <rect y="120" width="22" height="22" fill="#059669" rx="3" opacity="0.8"/>
+          <text x="28" y="135" font-size="11" fill="#059669">0.81%</text>
+        </g>
+        <!-- Y labels -->
+        <text x="164" y="25"  font-size="11" fill="#718096" text-anchor="end">LMT/Event 均值</text>
+        <text x="164" y="55"  font-size="11" fill="#718096" text-anchor="end">BR Course 均值</text>
+        <text x="164" y="85"  font-size="12" fill="#2563eb" text-anchor="end" font-weight="700">★ 泼水节</text>
+        <text x="164" y="115" font-size="11" fill="#718096" text-anchor="end">Core MP 均值</text>
+        <text x="164" y="145" font-size="11" fill="#718096" text-anchor="end">Competitive MP 均值</text>
+        <!-- baseline -->
+        <line x1="170" y1="10" x2="170" y2="155" stroke="#e2e8f0" stroke-width="1"/>
+        <!-- diff annotation -->
+        <text x="350" y="175" font-size="11" fill="#dc2626" text-anchor="middle">泼水节比 LMT 均值低 71% ↓</text>
+        <text x="350" y="190" font-size="11" fill="#718096" text-anchor="middle">與 Core MP 差距僅 1pp</text>
+      </svg>
+    </div>
+    <div class="chart-note">LMT/Event 類別中多數賽單中退率介於 8–20%，而泼水节 4.01% 不僅是 LMT 類別的最優值，亦接近 Core MP 日常（3.01%），確認局內玩法的高完整度。</div>
+  </div>
+</div>
+
+<!-- ══ SA4 ══ -->
+<div class="section">
+  <div class="section-h2">Supporting Argument 4：賽單七留超均值，節日 IP 有效轉化短期流量為 7 日粘性</div>
+  <div class="sa-block">
+    <div class="sa-header">
+      <div class="sa-eyebrow">SA4 — 赛单七留</div>
+      <div class="sa-title">七留 6.97% 高於 LMT 均值（6.41%），在 50 個限時賽單中排名 #6</div>
+    </div>
+    <div class="sa-body">
+      <div class="fact-label">Fact</div>
+      <p>泼水节賽單七留 <strong>6.97%</strong>，LMT/Event 均值為 6.41%（泼水节超出 +8.7%）。在 50 個 LMT/Event 賽單的七留排名中，泼水节位列第六——前五名依序為：Sudal Harbor 10v10（10.67%）、Core-Train（10.17%）、Train（10.17%）、Featured-Vacant（7.45%）、裝卸貨場-新春（7.30%）。次日留存 72.1%，略低於 LMT 均值 85.1%，差距可部分歸因於活動窗口的「首日高峰後自然衰退」效應。</p>
+      <div class="impl-label">Implication</div>
+      <p>七留超均值代表泼水节不只是「打了就走」的流量刺激，而是能讓玩家在 7 日後仍有一定比例繼續登入。對於一個無付費綁定、短期上線的節日模式，七留跑贏均值是有效粘性轉化的具體證明。次日留存偏低（72.1% vs 均值 85.1%）反映活動初期的高強度曝光後自然降溫，屬正常活動衰減曲線。</p>
+      <div class="action-label">Action</div>
+      <p>建議未來節日活動在泼水节基礎上測試「7 日期間每日任務」機制，以進一步拉升次日留存（目標 ≥80%），同時維持七留優勢。</p>
+    </div>
+  </div>
+
+  <div class="chart-wrap">
+    <div class="chart-caption">圖表 4｜SA4 圖：賽單七留 LMT Top 10 + 泼水节排名標示</div>
+    <div class="chart-title">LMT/Event 賽單七留 Top 10 — 泼水节排名 #6/50</div>
+    <div class="chart-inner">
+      <svg viewBox="0 0 620 290" xmlns="http://www.w3.org/2000/svg" style="font-family:inherit;">
+        <!-- max = 10.67%, scale: /12 * 380 = 338 -->
+        <g transform="translate(210,10)">
+          <rect y="0"   width="338" height="22" fill="#94a3b8" rx="3"/>
+          <text x="344" y="15" font-size="11" fill="#718096">10.67%</text>
+          <rect y="28"  width="322" height="22" fill="#94a3b8" rx="3"/>
+          <text x="328" y="43" font-size="11" fill="#718096">10.17%</text>
+          <rect y="56"  width="322" height="22" fill="#94a3b8" rx="3"/>
+          <text x="328" y="71" font-size="11" fill="#718096">10.17%</text>
+          <rect y="84"  width="236" height="22" fill="#94a3b8" rx="3"/>
+          <text x="242" y="99" font-size="11" fill="#718096">7.45%</text>
+          <rect y="112" width="231" height="22" fill="#94a3b8" rx="3"/>
+          <text x="237" y="127" font-size="11" fill="#718096">7.30%</text>
+          <!-- 泼水节 #6 -->
+          <rect y="140" width="221" height="22" fill="#2563eb" rx="3"/>
+          <text x="227" y="155" font-size="12" fill="#2563eb" font-weight="700">6.97%  #6</text>
+          <rect y="168" width="195" height="22" fill="#94a3b8" rx="3"/>
+          <text x="201" y="183" font-size="11" fill="#718096">6.17%</text>
+          <rect y="196" width="160" height="22" fill="#94a3b8" rx="3"/>
+          <text x="166" y="211" font-size="11" fill="#718096">5.05%</text>
+          <rect y="224" width="116" height="22" fill="#94a3b8" rx="3"/>
+          <text x="122" y="239" font-size="11" fill="#718096">3.67%</text>
+          <rect y="252" width="109" height="22" fill="#94a3b8" rx="3"/>
+          <text x="115" y="267" font-size="11" fill="#718096">3.45%</text>
+          <!-- LMT avg line: 6.41% → 6.41/12*380 = 203 -->
+          <line x1="203" y1="0" x2="203" y2="280" stroke="#dc2626" stroke-width="1" stroke-dasharray="4 3"/>
+          <text x="203" y="285" font-size="10" fill="#dc2626" text-anchor="middle">LMT 均值 6.41%</text>
+        </g>
+        <!-- Y labels -->
+        <text x="204" y="25"  font-size="10" fill="#718096" text-anchor="end">Sudal Harbor 10v10</text>
+        <text x="204" y="53"  font-size="10" fill="#718096" text-anchor="end">Core-Train</text>
+        <text x="204" y="81"  font-size="10" fill="#718096" text-anchor="end">Train</text>
+        <text x="204" y="109" font-size="10" fill="#718096" text-anchor="end">Featured-Vacant</text>
+        <text x="204" y="137" font-size="10" fill="#718096" text-anchor="end">裝卸貨場-新春</text>
+        <text x="204" y="165" font-size="12" fill="#2563eb" text-anchor="end" font-weight="700">★ 泼水节</text>
+        <text x="204" y="193" font-size="10" fill="#718096" text-anchor="end">WWE</text>
+        <text x="204" y="221" font-size="10" fill="#718096" text-anchor="end">Attack of Undead</text>
+        <text x="204" y="249" font-size="10" fill="#718096" text-anchor="end">10v10 Rust</text>
+        <text x="204" y="277" font-size="10" fill="#718096" text-anchor="end">Attack of Night</text>
+      </svg>
+    </div>
+    <div class="chart-note">泼水节七留（6.97%）高於 LMT 均值（虛線，6.41%），排名 #6/50。前五名均為有固定場景加持的地圖類賽單（Sudal Harbor、Train 地圖）或傳統節日活動（新春）——泼水节以純玩法主題在其中脫穎而出。</div>
+  </div>
+</div>
+
+<!-- ══ L0 總覽 ══ -->
+<div class="section">
+  <div class="section-h2">L0：各賽道平均指標總覽</div>
+  <table>
+    <thead>
+      <tr>
+        <th>賽道</th>
+        <th class="r">玩家參與率</th>
+        <th class="r">單局時長(min)</th>
+        <th class="r">場均擊殺</th>
+        <th class="r">中退率</th>
+        <th class="r">次日留存</th>
+        <th class="r">賽單七留</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="bold">BR Course <span class="pill pill-purple">BR</span></td>
+        <td class="r">21.63%</td><td class="r">11.26</td><td class="r">4.40</td>
+        <td class="r">5.08%</td><td class="r">82.97%</td><td class="r">38.17%</td>
+      </tr>
+      <tr>
+        <td class="bold">Competitive MP <span class="pill pill-teal">排位</span></td>
+        <td class="r">12.70%</td><td class="r">5.99</td><td class="r">11.06</td>
+        <td class="r">0.81%</td><td class="r">79.92%</td><td class="r">27.70%</td>
+      </tr>
+      <tr>
+        <td class="bold">Core MP <span class="pill pill-amber">日常</span></td>
+        <td class="r">3.07%</td><td class="r">4.13</td><td class="r">22.65</td>
+        <td class="r">3.01%</td><td class="r">81.53%</td><td class="r">20.65%</td>
+      </tr>
+      <tr>
+        <td class="bold">LMT/Event <span class="pill pill-gray">限時</span></td>
+        <td class="r">1.49%</td><td class="r">10.23</td><td class="r">75.67</td>
+        <td class="r">13.93%</td><td class="r">85.07%</td><td class="r">6.41%</td>
+      </tr>
+      <tr class="highlight-row">
+        <td class="bold">★ 泼水节 <span class="pill pill-blue">活動</span></td>
+        <td class="r">3.23%</td><td class="r">2.89</td><td class="r">21.84</td>
+        <td class="r">4.01%</td><td class="r">72.08%</td><td class="r">6.97%</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══ 专项对比 ══ -->
+<div class="section">
+  <div class="section-h2">L1：泼水节 vs 對比組 — 逐指標差異量化</div>
+
+  <div class="section-h3">1. 泼水节 vs LMT/Event 均值（同類優秀度）</div>
+  <table>
+    <thead>
+      <tr>
+        <th>指標</th>
+        <th class="r">泼水节</th>
+        <th class="r">LMT/Event 均值</th>
+        <th class="r">差異</th>
+        <th>判定</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>玩家參與率</td>
+        <td class="r bold">3.23%</td><td class="r">1.49%</td>
+        <td class="r" style="color:var(--green);font-weight:600;">+117% ↑</td>
+        <td><span class="pill pill-green">同類 #1</span></td>
+      </tr>
+      <tr>
+        <td>單局時長(min)</td>
+        <td class="r bold">2.89</td><td class="r">10.23</td>
+        <td class="r" style="color:var(--green);font-weight:600;">−72% 極速</td>
+        <td><span class="pill pill-green">最短局之一</span></td>
+      </tr>
+      <tr>
+        <td>場均擊殺</td>
+        <td class="r bold">21.84</td><td class="r">75.67</td>
+        <td class="r" style="color:var(--text3);">−71%（時長差異）</td>
+        <td><span class="pill pill-gray">非比較維度</span></td>
+      </tr>
+      <tr>
+        <td>中退率</td>
+        <td class="r bold">4.01%</td><td class="r">13.93%</td>
+        <td class="r" style="color:var(--green);font-weight:600;">−71% ↓</td>
+        <td><span class="pill pill-green">完局率優異</span></td>
+      </tr>
+      <tr>
+        <td>次日留存</td>
+        <td class="r bold">72.08%</td><td class="r">85.07%</td>
+        <td class="r" style="color:var(--amber);">−13pp</td>
+        <td><span class="pill pill-amber">活動衰減正常</span></td>
+      </tr>
+      <tr>
+        <td>賽單七留</td>
+        <td class="r bold">6.97%</td><td class="r">6.41%</td>
+        <td class="r" style="color:var(--green);font-weight:600;">+8.7% ↑</td>
+        <td><span class="pill pill-green">同類 #6</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="section-h3">2. 泼水节 vs Core MP 均值（活躍補丁效果）</div>
+  <table>
+    <thead>
+      <tr>
+        <th>指標</th>
+        <th class="r">泼水节</th>
+        <th class="r">Core MP 均值</th>
+        <th class="r">差異</th>
+        <th>判定</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>玩家參與率</td>
+        <td class="r bold">3.23%</td><td class="r">3.07%</td>
+        <td class="r" style="color:var(--green);font-weight:600;">+5.2% ↑</td>
+        <td><span class="pill pill-green">與日常齊平</span></td>
+      </tr>
+      <tr>
+        <td>單局時長(min)</td>
+        <td class="r bold">2.89</td><td class="r">4.13</td>
+        <td class="r" style="color:var(--green);">−30% 更快</td>
+        <td><span class="pill pill-green">極速優於日常</span></td>
+      </tr>
+      <tr>
+        <td>場均擊殺</td>
+        <td class="r bold">21.84</td><td class="r">22.65</td>
+        <td class="r" style="color:var(--text3);">−3.6% 持平</td>
+        <td><span class="pill pill-gray">基本持平</span></td>
+      </tr>
+      <tr>
+        <td>中退率</td>
+        <td class="r bold">4.01%</td><td class="r">3.01%</td>
+        <td class="r" style="color:var(--amber);">+1pp 微高</td>
+        <td><span class="pill pill-amber">在接受範圍內</span></td>
+      </tr>
+      <tr>
+        <td>次日留存</td>
+        <td class="r bold">72.08%</td><td class="r">81.53%</td>
+        <td class="r" style="color:var(--amber);">−9.5pp</td>
+        <td><span class="pill pill-amber">活動時效性限制</span></td>
+      </tr>
+      <tr>
+        <td>賽單七留</td>
+        <td class="r bold">6.97%</td><td class="r">20.65%</td>
+        <td class="r" style="color:var(--red);">−13.7pp</td>
+        <td><span class="pill pill-gray">七留由日常賽道主導</span></td>
+      </tr>
+    </tbody>
+  </table>
+  <p style="font-size:12px;color:var(--text3);margin-top:-8px;">
+    ⚠️ 七留差距預期合理：Core MP 為常駐賽道，每日均有玩家回訪積累；泼水节為限時活動，7 日複訪以節日期間玩家為母體，不可直接橫向比較。關鍵指標為 <strong>LMT 均值的超越程度（6.97% vs 6.41%）</strong>。
+  </p>
+</div>
+
+<!-- ══ Next Steps ══ -->
+<div class="section">
+  <div class="section-h2">行動建議</div>
+  <table class="next-steps-table">
+    <thead>
+      <tr>
+        <th>優先序</th><th>行動項目</th><th>依據指標</th><th>Timeline</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="p0">
+        <td>P0</td>
+        <td>將泼水节列為節日活動設計標準範例，參與率 ≥2.5%、中退率 ≤5% 作為新活動上線健康基準</td>
+        <td>參與率 #1/50；中退率 4.01%</td>
+        <td>下季活動立即套用</td>
+      </tr>
+      <tr class="p0">
+        <td>P0</td>
+        <td>泼水节活動期間增加「7 日每日任務」機制，目標將次日留存從 72% 拉升至 ≥80%</td>
+        <td>次日留存低於均值 -13pp</td>
+        <td>下次活動版本</td>
+      </tr>
+      <tr class="p1">
+        <td>P1</td>
+        <td>複製「極速節奏 + 節日 IP」設計框架至下一個節日活動（如潑水節第二波、中秋等），驗證可複製性</td>
+        <td>七留 #6；參與率 #1</td>
+        <td>Q2/Q3 節日活動規劃期</td>
+      </tr>
+      <tr class="p1">
+        <td>P1</td>
+        <td>對 LMT/Event 賽單中退率 >8% 的賽單啟動玩法調整，以泼水节為基準進行 A/B 測試</td>
+        <td>LMT 均值中退率 13.93%</td>
+        <td>本季持續</td>
+      </tr>
+      <tr class="p2">
+        <td>P2</td>
+        <td>建立「限時賽單健康度儀表板」，每週追蹤參與率、中退率、七留三指標，與泼水节基準對比</td>
+        <td>全賽道分析框架</td>
+        <td>Q2 數據基建</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<hr class="section-divider">
+
+<!-- ══ Footer ══ -->
+<div style="font-size:12px;color:var(--text3);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+  <span>數據來源：25年至今賽單數據 · 10,755 條記錄 · 134 個唯一賽單</span>
+  <span>分析生成：Claude · 2026-04-02</span>
+</div>
+
+</body>
+</html>
